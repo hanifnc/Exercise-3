@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Exercise 3</title>
+    <style>
+        th,
+        td,
+        p,
+        input {
+            font: 14px Verdana;
+        }
+
+        table,
+        th,
+        td {
+            border: solid 1px #DDD;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+        }
+
+        th {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+    <input type="text" id="filterInput" onkeyup="filterFunction()" placeholder="Cari" style="width:25%;padding: 20px;">
+    <p id="showData"></p>
+    </center>
+
+    <script>
+        function getJSONFromURL(url, callback) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                    if (typeof callback === "function") {
+                        callback(xmlhttp.responseText);
+                    }
+                }
+            }
+            xmlhttp.open('GET', url, true);
+            xmlhttp.send();
+        }
+
+        function filterFunction() {
+            var input, filter, table, tr, td, i, textVal;
+            input = document.getElementById("filterInput");
+            filter = input.value.toLowerCase();
+            table = document.getElementById("dataPlanet");
+            tr = table.getElementsByTagName("tr");
+            console.log(tr);
+
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                console.log(td);
+
+                var nameOfPlanet = td.textContent || td.innerText;
+
+                if (nameOfPlanet) {
+                    textVal = nameOfPlanet;
+                    console.log(textVal);
+
+                    if (textVal.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    }
+
+                    else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        //initialize variabel url
+        var url = 'https://swapi.co/api/planets/?format=json';
+
+        //get json from url and then when get response do create table based on it
+        getJSONFromURL(url, function (responseText) {
+            //get only planet results (from page 2 of swapi)
+            var tes = JSON.parse(responseText).results;
+
+            var col = [];
+            for (var i = 0; i < tes.length; i++) {
+                for (var key in tes[i]) {
+                    if (col.indexOf(key) === -1) {
+                        col.push(key);
+                    }
+                }
+            }
+
+            //create element table
+            var table = document.createElement("table");
+            table.setAttribute("id", "dataPlanet");
+
+            var tr = table.insertRow(-1);
+
+            for (var i = 0; i < col.length; i++) {
+                var th = document.createElement("th");
+                th.innerHTML = col[i];
+                tr.appendChild(th);
+            }
+
+            for (var i = 0; i < tes.length; i++) {
+                tr = table.insertRow(-1);
+
+                for (var j = 0; j < col.length; j++) {
+                    var tabCell = tr.insertCell(-1);
+                    tabCell.innerHTML = tes[i][col[j]];
+                }
+            }
+
+            var divContainer = document.getElementById("showData");
+            divContainer.innerHTML = "";
+            divContainer.appendChild(table);
+        });
+    </script>
+</body>
+
+</html>
